@@ -46,23 +46,78 @@ Een Windows-desktopapplicatie voor het real-time transcriberen van vergaderingen
 
 ## Eerste gebruik
 
-Bij de eerste keer opstarten zal de applicatie aangeven dat er instellingen ontbreken. Volg deze stappen:
+Bij de eerste keer opstarten zal de applicatie aangeven dat er instellingen ontbreken. Volg onderstaande handleidingen om de benodigde API keys te verkrijgen.
 
-1. **Deepgram API key verkrijgen**:
-   - Ga naar [https://console.deepgram.com](https://console.deepgram.com)
-   - Maak een account aan of log in
-   - Maak een nieuwe API key aan
+---
 
-2. **Claude API key verkrijgen**:
-   - Ga naar [https://console.anthropic.com](https://console.anthropic.com)
-   - Maak een account aan of log in
-   - Maak een nieuwe API key aan
+## API Keys verkrijgen
 
-3. **Instellingen configureren**:
-   - Open de applicatie
-   - Klik op de instellingen knop (tandwiel icoon)
-   - Vul de Deepgram en Claude API keys in
-   - Klik op "Opslaan"
+### Deepgram API Key (voor spraak-naar-tekst transcriptie)
+
+Deepgram is een spraakherkenningsservice die audio omzet naar tekst. Je hebt een API key nodig om deze service te gebruiken.
+
+**Stap 1: Account aanmaken**
+1. Ga naar [https://console.deepgram.com/signup](https://console.deepgram.com/signup)
+2. Vul je e-mailadres en wachtwoord in, of registreer via Google/GitHub
+3. Bevestig je e-mailadres via de verificatiemail
+
+**Stap 2: API Key aanmaken**
+1. Log in op [https://console.deepgram.com](https://console.deepgram.com)
+2. Klik in het linker menu op **"API Keys"**
+3. Klik op de knop **"Create a New API Key"**
+4. Geef de key een naam (bijv. "Meeting Transcriber")
+5. Selecteer de gewenste rechten:
+   - Voor deze applicatie is **"Member"** voldoende
+6. Klik op **"Create Key"**
+7. **Belangrijk**: Kopieer de API key direct en bewaar deze veilig. De key wordt slechts één keer getoond!
+
+**Kosten en gratis tegoed**
+- Nieuwe accounts krijgen $200 gratis tegoed
+- Transcriptie kost ongeveer $0.0043 per minuut (Pay As You Go)
+- Bekijk actuele prijzen op [https://deepgram.com/pricing](https://deepgram.com/pricing)
+
+---
+
+### Claude API Key (voor AI-samenvattingen)
+
+Claude is een AI-assistent van Anthropic die de vergadertranscripties samenvat.
+
+**Stap 1: Account aanmaken**
+1. Ga naar [https://console.anthropic.com/signup](https://console.anthropic.com/signup)
+2. Vul je e-mailadres in en klik op **"Continue with Email"**
+3. Voer de verificatiecode in die je per e-mail ontvangt
+4. Vul je naam en telefoonnummer in voor verificatie
+5. Accepteer de gebruiksvoorwaarden
+
+**Stap 2: Tegoed toevoegen**
+1. Na het inloggen, ga naar **"Plans & Billing"** in het menu
+2. Klik op **"Add Payment Method"** om een betaalmethode toe te voegen
+3. Voeg tegoed toe aan je account (minimaal $5)
+
+**Stap 3: API Key aanmaken**
+1. Ga naar [https://console.anthropic.com/settings/keys](https://console.anthropic.com/settings/keys)
+2. Klik op **"Create Key"**
+3. Geef de key een naam (bijv. "Meeting Transcriber")
+4. Klik op **"Create Key"**
+5. **Belangrijk**: Kopieer de API key direct en bewaar deze veilig. De key wordt slechts één keer getoond!
+
+**Kosten**
+- Claude Sonnet: $3 per miljoen input tokens, $15 per miljoen output tokens
+- Een gemiddelde samenvatting kost enkele centen
+- Bekijk actuele prijzen op [https://www.anthropic.com/pricing](https://www.anthropic.com/pricing)
+
+---
+
+## API Keys configureren in de applicatie
+
+1. Start de Meeting Transcriber applicatie
+2. Bij de eerste keer opstarten verschijnt automatisch een melding over ontbrekende instellingen
+3. Klik op **"Ja"** om naar de instellingen te gaan, of klik later op het **tandwiel icoon** (⚙️)
+4. Vul de API keys in:
+   - **Deepgram API Key**: Plak hier je Deepgram key
+   - **Claude API Key**: Plak hier je Anthropic/Claude key
+5. Klik op **"Opslaan"**
+6. De applicatie is nu klaar voor gebruik
 
 ## Gebruik
 
