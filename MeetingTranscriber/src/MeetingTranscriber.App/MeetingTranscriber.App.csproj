@@ -8,6 +8,8 @@
     <UseWPF>true</UseWPF>
     <AssemblyName>MeetingTranscriber</AssemblyName>
     <RootNamespace>MeetingTranscriber</RootNamespace>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
   </PropertyGroup>
 
   <ItemGroup>
