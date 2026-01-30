@@ -1,0 +1,24 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:converters="clr-namespace:MeetingTranscriber.Converters">
+
+    <!-- Converters -->
+    <converters:BoolToPlayPauseIconConverter x:Key="BoolToPlayPauseIconConverter"/>
+    <converters:BoolToPauseResumeTextConverter x:Key="BoolToPauseResumeTextConverter"/>
+    <converters:BoolToRecordingBrushConverter x:Key="BoolToRecordingBrushConverter"/>
+    <converters:BoolToOpacityConverter x:Key="BoolToOpacityConverter"/>
+    <converters:StringNotEmptyToBoolConverter x:Key="StringNotEmptyToBoolConverter"/>
+    <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    <converters:InverseBoolConverter x:Key="InverseBoolConverter"/>
+    <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
+    <converters:ValidationIconConverter x:Key="ValidationIconConverter"/>
+    <converters:NullToBoolConverter x:Key="NullToBoolConverter"/>
+    <converters:ZeroToVisibilityConverter x:Key="ZeroToVisibilityConverter"/>
+
+    <!-- Custom Styles -->
+    <Style x:Key="TranscriptItemStyle" TargetType="ListBoxItem">
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="Padding" Value="8"/>
+    </Style>
+
+</ResourceDictionary>
