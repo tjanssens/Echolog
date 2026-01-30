@@ -239,6 +239,9 @@ public class AudioCaptureService : IAudioCaptureService, IDisposable
                 if (converted != null && converted.Length > 0)
                 {
                     _loopbackWriter?.Write(converted, 0, converted.Length);
+
+                    // Also send loopback audio for transcription
+                    AudioDataAvailable?.Invoke(this, converted);
                 }
             }
             catch (Exception ex)
