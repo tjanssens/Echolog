@@ -35,6 +35,11 @@ public partial class MainViewModel : ObservableObject
     private SummaryViewModel _summary;
 
     [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(StartCommand))]
+    [NotifyCanExecuteChangedFor(nameof(StopCommand))]
+    [NotifyCanExecuteChangedFor(nameof(PauseCommand))]
+    [NotifyCanExecuteChangedFor(nameof(GenerateSummaryCommand))]
+    [NotifyCanExecuteChangedFor(nameof(ExportMarkdownCommand))]
     private bool _isRecording;
 
     [ObservableProperty]
@@ -101,6 +106,8 @@ public partial class MainViewModel : ObservableObject
 
     private void OnTranscriptReceived(object? sender, TranscriptSegment segment)
     {
+        _logger.LogInformation("Transcript received: {Speaker}: {Text} (Final: {IsFinal})",
+            segment.Speaker, segment.Text, segment.IsFinal);
         Transcript.AddSegment(segment);
         _currentSession?.Segments.Add(segment);
     }

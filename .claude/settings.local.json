@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh:*)",
+      "Bash(dotnet test:*)",
+      "Bash(dotnet restore:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfix: Update tests to use ISettingsService and fix package versions\n\n- Update package references to resolve version conflicts \\(Microsoft.Extensions.* 8.0.1+\\)\n- Remove application icon reference \\(file not present\\)\n- Refactor tests to use ISettingsService instead of IOptions<T> pattern\n- Update SettingsTests to use unified AppSettings class\n- Add missing System.IO using in SessionRepositoryTests\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git push)",
+      "Bash(dotnet publish:*)",
+      "Bash(powershell -Command:*)",
+      "Bash(ls:*)",
+      "Bash(dotnet build:*)",
+      "Bash(findstr:*)",
+      "Bash(git commit:*)",
+      "Bash(git fetch:*)",
+      "Bash(git checkout:*)",
+      "Bash(git pull:*)",
+      "Bash(dir:*)",
+      "Bash(timeout 10 dotnet run:*)",
+      "Bash(timeout 20 dotnet run:*)",
+      "Bash(timeout 25 dotnet run:*)"
+    ]
+  }
+}

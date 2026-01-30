@@ -1,0 +1,2 @@
+C:\Users\Tom\source\repos\tjanssens\echolog\MeetingTranscriber\publish\single-exe\MeetingTranscriber.pdb
+C:\Users\Tom\source\repos\tjanssens\echolog\MeetingTranscriber\publish\single-exe\MeetingTranscriber.exe

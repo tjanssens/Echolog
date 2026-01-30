@@ -18,6 +18,7 @@ public class DeepgramTranscriptionService : ITranscriptionService, IDisposable
     private bool _isConnected;
     private bool _disposed;
     private int _speakerCounter = 0;
+    private int _audioPacketCounter = 0;
 
     public bool IsConnected => _isConnected;
 
@@ -110,6 +111,7 @@ public class DeepgramTranscriptionService : ITranscriptionService, IDisposable
                 if (result.MessageType == WebSocketMessageType.Text)
                 {
                     var message = Encoding.UTF8.GetString(buffer, 0, result.Count);
+                    _logger.LogDebug("Deepgram message received: {Message}", message.Length > 200 ? message[..200] + "..." : message);
                     ProcessDeepgramMessage(message);
                 }
             }
@@ -247,6 +249,13 @@ public class DeepgramTranscriptionService : ITranscriptionService, IDisposable
                 true,
                 CancellationToken.None
             );
+
+            _audioPacketCounter++;
+            if (_audioPacketCounter % 50 == 0)
+            {
+                _logger.LogDebug("Sent {Count} audio packets to Deepgram ({Bytes} bytes last)",
+                    _audioPacketCounter, audioData.Length);
+            }
         }
         catch (Exception ex)
         {
