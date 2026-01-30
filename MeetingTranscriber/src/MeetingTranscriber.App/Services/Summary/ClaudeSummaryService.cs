@@ -1,14 +1,19 @@
+using System.Net.Http;
 using System.Text;
+using System.Text.Json;
 using MeetingTranscriber.Models;
+using MeetingTranscriber.Services.Settings;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace MeetingTranscriber.Services.Summary;
 
 public class ClaudeSummaryService : ISummaryService
 {
-    private readonly ClaudeSettings _settings;
+    private readonly ISettingsService _settingsService;
     private readonly ILogger<ClaudeSummaryService> _logger;
+    private readonly HttpClient _httpClient;
+
+    private const string AnthropicApiUrl = "https://api.anthropic.com/v1/messages";
 
     private const string SummaryPrompt = """
         Je bent een assistent die vergaderverslagen maakt. Analyseer het volgende transcript en maak:
@@ -32,11 +37,12 @@ public class ClaudeSummaryService : ISummaryService
         """;
 
     public ClaudeSummaryService(
-        IOptions<ClaudeSettings> settings,
+        ISettingsService settingsService,
         ILogger<ClaudeSummaryService> logger)
     {
-        _settings = settings.Value;
+        _settingsService = settingsService;
         _logger = logger;
+        _httpClient = new HttpClient();
     }
 
     public async Task<string> GenerateSummaryAsync(
@@ -48,10 +54,12 @@ public class ClaudeSummaryService : ISummaryService
             return "Geen transcript beschikbaar voor samenvatting.";
         }
 
-        if (string.IsNullOrEmpty(_settings.ApiKey))
+        var settings = await _settingsService.GetSettingsAsync();
+
+        if (string.IsNullOrEmpty(settings.ClaudeApiKey))
         {
             _logger.LogWarning("Claude API key is not configured");
-            return "Claude API key is niet geconfigureerd. Configureer de API key in appsettings.json.";
+            return "Claude API key is niet geconfigureerd. Ga naar Instellingen om de API key in te voeren.";
         }
 
         // Build transcript text
@@ -63,29 +71,72 @@ public class ClaudeSummaryService : ISummaryService
 
         var prompt = string.Format(SummaryPrompt, transcriptBuilder.ToString());
 
-        _logger.LogInformation("Generating summary using model {Model}", _settings.Model);
+        _logger.LogInformation("Generating summary using model {Model}", settings.ClaudeModel);
 
-        // Anthropic SDK implementation will be added in Phase 7
-        // This will include:
-        // - AnthropicClient initialization
-        // - CreateMessageAsync with the prompt
-        // - Streaming response handling
+        try
+        {
+            var requestBody = new
+            {
+                model = settings.ClaudeModel,
+                max_tokens = 4096,
+                messages = new[]
+                {
+                    new { role = "user", content = prompt }
+                }
+            };
 
-        // For now, return a placeholder
-        await Task.Delay(100, cancellationToken); // Simulate API call
+            using var request = new HttpRequestMessage(HttpMethod.Post, AnthropicApiUrl);
+            request.Headers.Add("x-api-key", settings.ClaudeApiKey);
+            request.Headers.Add("anthropic-version", "2023-06-01");
+            request.Content = new StringContent(
+                JsonSerializer.Serialize(requestBody),
+                Encoding.UTF8,
+                "application/json"
+            );
 
-        return """
-            ## Samenvatting
+            var response = await _httpClient.SendAsync(request, cancellationToken);
 
-            *Samenvatting wordt gegenereerd wanneer de Claude API is geconfigureerd.*
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
+                _logger.LogError("Claude API error: {StatusCode} - {Error}", response.StatusCode, errorContent);
 
-            ## Actiepunten
+                if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                {
+                    return "Claude API key is ongeldig. Controleer de API key in Instellingen.";
+                }
 
-            - Configureer de Claude API key in appsettings.json
+                return $"Fout bij genereren samenvatting: {response.StatusCode}";
+            }
 
-            ## Open punten
+            var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
+            var responseJson = JsonDocument.Parse(responseContent);
 
-            - Implementatie volgt in Fase 7
-            """;
+            // Extract the text from the response
+            var content = responseJson.RootElement
+                .GetProperty("content")
+                .EnumerateArray()
+                .FirstOrDefault();
+
+            if (content.ValueKind != JsonValueKind.Undefined &&
+                content.TryGetProperty("text", out var textElement))
+            {
+                var summaryText = textElement.GetString();
+                _logger.LogInformation("Summary generated successfully");
+                return summaryText ?? "Geen samenvatting ontvangen.";
+            }
+
+            return "Onverwacht antwoord van Claude API.";
+        }
+        catch (OperationCanceledException)
+        {
+            _logger.LogInformation("Summary generation was cancelled");
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to generate summary");
+            return $"Fout bij genereren samenvatting: {ex.Message}";
+        }
     }
 }

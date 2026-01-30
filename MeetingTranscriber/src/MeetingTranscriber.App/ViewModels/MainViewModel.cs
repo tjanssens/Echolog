@@ -1,13 +1,14 @@
+using System.IO;
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MeetingTranscriber.Models;
 using MeetingTranscriber.Services.Audio;
+using MeetingTranscriber.Services.Settings;
 using MeetingTranscriber.Services.Storage;
 using MeetingTranscriber.Services.Summary;
 using MeetingTranscriber.Services.Transcription;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace MeetingTranscriber.ViewModels;
 
@@ -17,7 +18,7 @@ public partial class MainViewModel : ObservableObject
     private readonly ITranscriptionService _transcriptionService;
     private readonly ISummaryService _summaryService;
     private readonly ISessionRepository _sessionRepository;
-    private readonly StorageSettings _storageSettings;
+    private readonly ISettingsService _settingsService;
     private readonly ILogger<MainViewModel> _logger;
     private readonly DispatcherTimer _recordingTimer;
 
@@ -45,12 +46,17 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private string _statusMessage = "Klaar om te starten";
 
+    // Events for opening windows (handled in code-behind)
+    public event EventHandler? OpenSettingsRequested;
+    public event EventHandler? OpenHistoryRequested;
+    public event EventHandler<Session>? LoadSessionRequested;
+
     public MainViewModel(
         IAudioCaptureService audioCaptureService,
         ITranscriptionService transcriptionService,
         ISummaryService summaryService,
         ISessionRepository sessionRepository,
-        IOptions<StorageSettings> storageSettings,
+        ISettingsService settingsService,
         ILogger<MainViewModel> logger,
         DeviceSelectorViewModel deviceSelector,
         TranscriptViewModel transcript,
@@ -60,7 +66,7 @@ public partial class MainViewModel : ObservableObject
         _transcriptionService = transcriptionService;
         _summaryService = summaryService;
         _sessionRepository = sessionRepository;
-        _storageSettings = storageSettings.Value;
+        _settingsService = settingsService;
         _logger = logger;
 
         DeviceSelector = deviceSelector;
@@ -112,6 +118,8 @@ public partial class MainViewModel : ObservableObject
         {
             StatusMessage = "Opname starten...";
 
+            var settings = await _settingsService.GetSettingsAsync();
+
             // Create new session
             _currentSession = new Session
             {
@@ -121,7 +129,7 @@ public partial class MainViewModel : ObservableObject
             };
 
             var sessionPath = Path.Combine(
-                _storageSettings.GetExpandedPath(),
+                settings.StoragePath,
                 "sessions",
                 _currentSession.Id.ToString());
 
@@ -130,6 +138,10 @@ public partial class MainViewModel : ObservableObject
             _currentSession.AudioInputPath = Path.Combine(sessionPath, "audio_input.wav");
             _currentSession.AudioOutputPath = Path.Combine(sessionPath, "audio_output.wav");
             _currentSession.AudioMixedPath = Path.Combine(sessionPath, "audio_mixed.wav");
+
+            // Clear previous transcript
+            Transcript.Clear();
+            Summary.Clear();
 
             // Connect to transcription service
             await _transcriptionService.ConnectAsync();
@@ -212,7 +224,9 @@ public partial class MainViewModel : ObservableObject
     {
         try
         {
+            Summary.IsGenerating = true;
             StatusMessage = "Samenvatting genereren...";
+
             var summaryText = await _summaryService.GenerateSummaryAsync(Transcript.Segments.ToList());
             Summary.SummaryText = summaryText;
 
@@ -228,6 +242,10 @@ public partial class MainViewModel : ObservableObject
         {
             _logger.LogError(ex, "Failed to generate summary");
             StatusMessage = $"Fout bij samenvatting: {ex.Message}";
+        }
+        finally
+        {
+            Summary.IsGenerating = false;
         }
     }
 
@@ -263,4 +281,33 @@ public partial class MainViewModel : ObservableObject
     }
 
     private bool CanExport() => !IsRecording && Transcript.Segments.Any();
+
+    [RelayCommand]
+    private void OpenSettings()
+    {
+        OpenSettingsRequested?.Invoke(this, EventArgs.Empty);
+    }
+
+    [RelayCommand]
+    private void OpenHistory()
+    {
+        OpenHistoryRequested?.Invoke(this, EventArgs.Empty);
+    }
+
+    public void LoadSession(Session session)
+    {
+        _currentSession = session;
+
+        // Load transcript segments
+        Transcript.Clear();
+        foreach (var segment in session.Segments)
+        {
+            Transcript.AddSegment(segment);
+        }
+
+        // Load summary if available
+        Summary.SummaryText = session.Summary ?? string.Empty;
+
+        StatusMessage = $"Sessie geladen: {session.Title}";
+    }
 }

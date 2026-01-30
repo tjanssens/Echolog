@@ -9,6 +9,11 @@
     <converters:BoolToOpacityConverter x:Key="BoolToOpacityConverter"/>
     <converters:StringNotEmptyToBoolConverter x:Key="StringNotEmptyToBoolConverter"/>
     <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    <converters:InverseBoolConverter x:Key="InverseBoolConverter"/>
+    <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
+    <converters:ValidationIconConverter x:Key="ValidationIconConverter"/>
+    <converters:NullToBoolConverter x:Key="NullToBoolConverter"/>
+    <converters:ZeroToVisibilityConverter x:Key="ZeroToVisibilityConverter"/>
 
     <!-- Custom Styles -->
     <Style x:Key="TranscriptItemStyle" TargetType="ListBoxItem">

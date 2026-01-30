@@ -1,0 +1,226 @@
+<Window x:Class="MeetingTranscriber.Views.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:viewModels="clr-namespace:MeetingTranscriber.ViewModels"
+        mc:Ignorable="d"
+        Title="Instellingen"
+        Height="650"
+        Width="600"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Background="{DynamicResource MaterialDesign.Brush.Background}"
+        TextElement.Foreground="{DynamicResource MaterialDesign.Brush.Foreground}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="14"
+        FontFamily="{materialDesign:MaterialDesignFont}"
+        d:DataContext="{d:DesignInstance viewModels:SettingsViewModel}">
+
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <TextBlock Grid.Row="0"
+                   Text="Instellingen"
+                   Style="{StaticResource MaterialDesignHeadline5TextBlock}"
+                   Margin="0,0,0,24"/>
+
+        <!-- Settings Content -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <!-- Deepgram Settings -->
+                <materialDesign:Card Padding="16" Margin="0,0,0,16">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                            <materialDesign:PackIcon Kind="Microphone"
+                                                     VerticalAlignment="Center"
+                                                     Width="24" Height="24"
+                                                     Margin="0,0,8,0"/>
+                            <TextBlock Text="Deepgram (Transcriptie)"
+                                       Style="{StaticResource MaterialDesignHeadline6TextBlock}"/>
+                        </StackPanel>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBox Grid.Column="0"
+                                     Text="{Binding DeepgramApiKey, UpdateSourceTrigger=PropertyChanged}"
+                                     materialDesign:HintAssist.Hint="API Key"
+                                     Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                                     Margin="0,0,8,0"/>
+
+                            <Button Grid.Column="1"
+                                    Command="{Binding ValidateDeepgramCommand}"
+                                    Style="{StaticResource MaterialDesignOutlinedButton}"
+                                    IsEnabled="{Binding IsValidatingDeepgram, Converter={StaticResource InverseBoolConverter}}"
+                                    ToolTip="Valideer API Key">
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="{Binding IsDeepgramValid, Converter={StaticResource ValidationIconConverter}}"
+                                                             VerticalAlignment="Center"/>
+                                    <ProgressBar Style="{StaticResource MaterialDesignCircularProgressBar}"
+                                                 Width="16" Height="16"
+                                                 IsIndeterminate="True"
+                                                 Visibility="{Binding IsValidatingDeepgram, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                                 Margin="4,0,0,0"/>
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+
+                        <Grid Margin="0,16,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBox Grid.Column="0"
+                                     Text="{Binding DeepgramLanguage, UpdateSourceTrigger=PropertyChanged}"
+                                     materialDesign:HintAssist.Hint="Taal (bijv. nl, en)"
+                                     Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
+
+                            <TextBox Grid.Column="2"
+                                     Text="{Binding DeepgramModel, UpdateSourceTrigger=PropertyChanged}"
+                                     materialDesign:HintAssist.Hint="Model (bijv. nova-2)"
+                                     Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
+                        </Grid>
+                    </StackPanel>
+                </materialDesign:Card>
+
+                <!-- Claude Settings -->
+                <materialDesign:Card Padding="16" Margin="0,0,0,16">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                            <materialDesign:PackIcon Kind="Robot"
+                                                     VerticalAlignment="Center"
+                                                     Width="24" Height="24"
+                                                     Margin="0,0,8,0"/>
+                            <TextBlock Text="Claude (Samenvatting)"
+                                       Style="{StaticResource MaterialDesignHeadline6TextBlock}"/>
+                        </StackPanel>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBox Grid.Column="0"
+                                     Text="{Binding ClaudeApiKey, UpdateSourceTrigger=PropertyChanged}"
+                                     materialDesign:HintAssist.Hint="API Key"
+                                     Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                                     Margin="0,0,8,0"/>
+
+                            <Button Grid.Column="1"
+                                    Command="{Binding ValidateClaudeCommand}"
+                                    Style="{StaticResource MaterialDesignOutlinedButton}"
+                                    IsEnabled="{Binding IsValidatingClaude, Converter={StaticResource InverseBoolConverter}}"
+                                    ToolTip="Valideer API Key">
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="{Binding IsClaudeValid, Converter={StaticResource ValidationIconConverter}}"
+                                                             VerticalAlignment="Center"/>
+                                    <ProgressBar Style="{StaticResource MaterialDesignCircularProgressBar}"
+                                                 Width="16" Height="16"
+                                                 IsIndeterminate="True"
+                                                 Visibility="{Binding IsValidatingClaude, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                                 Margin="4,0,0,0"/>
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+
+                        <TextBox Margin="0,16,0,0"
+                                 Text="{Binding ClaudeModel, UpdateSourceTrigger=PropertyChanged}"
+                                 materialDesign:HintAssist.Hint="Model"
+                                 Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
+                    </StackPanel>
+                </materialDesign:Card>
+
+                <!-- Storage Settings -->
+                <materialDesign:Card Padding="16" Margin="0,0,0,16">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                            <materialDesign:PackIcon Kind="Folder"
+                                                     VerticalAlignment="Center"
+                                                     Width="24" Height="24"
+                                                     Margin="0,0,8,0"/>
+                            <TextBlock Text="Opslag"
+                                       Style="{StaticResource MaterialDesignHeadline6TextBlock}"/>
+                        </StackPanel>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBox Grid.Column="0"
+                                     Text="{Binding StoragePath, UpdateSourceTrigger=PropertyChanged}"
+                                     materialDesign:HintAssist.Hint="Opslaglocatie"
+                                     Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                                     Margin="0,0,8,0"/>
+
+                            <Button Grid.Column="1"
+                                    Command="{Binding BrowseStoragePathCommand}"
+                                    Style="{StaticResource MaterialDesignOutlinedButton}"
+                                    x:Name="BrowseButton"
+                                    ToolTip="Bladeren...">
+                                <materialDesign:PackIcon Kind="FolderOpen"/>
+                            </Button>
+                        </Grid>
+                    </StackPanel>
+                </materialDesign:Card>
+
+                <!-- UI Settings -->
+                <materialDesign:Card Padding="16">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                            <materialDesign:PackIcon Kind="Cog"
+                                                     VerticalAlignment="Center"
+                                                     Width="24" Height="24"
+                                                     Margin="0,0,8,0"/>
+                            <TextBlock Text="Interface"
+                                       Style="{StaticResource MaterialDesignHeadline6TextBlock}"/>
+                        </StackPanel>
+
+                        <CheckBox Content="Automatisch scrollen naar nieuw transcript"
+                                  IsChecked="{Binding AutoScroll}"
+                                  Margin="0,0,0,8"/>
+
+                        <CheckBox Content="Donker thema"
+                                  IsChecked="{Binding DarkTheme}"/>
+                    </StackPanel>
+                </materialDesign:Card>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Status Message -->
+        <TextBlock Grid.Row="2"
+                   Text="{Binding StatusMessage}"
+                   Margin="0,16,0,16"
+                   Foreground="{DynamicResource MaterialDesign.Brush.Foreground.Light}"/>
+
+        <!-- Action Buttons -->
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="Annuleren"
+                    Style="{StaticResource MaterialDesignOutlinedButton}"
+                    IsCancel="True"
+                    Margin="0,0,8,0"
+                    Click="CancelButton_Click"/>
+
+            <Button Content="Opslaan"
+                    Style="{StaticResource MaterialDesignRaisedButton}"
+                    Command="{Binding SaveCommand}"
+                    IsDefault="True"
+                    Click="SaveButton_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

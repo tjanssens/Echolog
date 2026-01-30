@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MeetingTranscriber.Services.Audio;
+using MeetingTranscriber.Services.Settings;
 using MeetingTranscriber.Services.Storage;
 using MeetingTranscriber.Services.Summary;
 using MeetingTranscriber.Services.Transcription;
@@ -38,7 +39,7 @@ public partial class App : Application
     {
         return new ConfigurationBuilder()
             .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
             .Build();
     }
 
@@ -46,9 +47,6 @@ public partial class App : Application
     {
         // Configuration
         services.AddSingleton(configuration);
-        services.Configure<DeepgramSettings>(configuration.GetSection("Deepgram"));
-        services.Configure<ClaudeSettings>(configuration.GetSection("Claude"));
-        services.Configure<StorageSettings>(configuration.GetSection("Storage"));
         services.Configure<AudioSettings>(configuration.GetSection("Audio"));
 
         // Logging
@@ -58,7 +56,8 @@ public partial class App : Application
             builder.SetMinimumLevel(LogLevel.Debug);
         });
 
-        // Services
+        // Core Services
+        services.AddSingleton<ISettingsService, SettingsService>();
         services.AddSingleton<IAudioCaptureService, AudioCaptureService>();
         services.AddSingleton<ITranscriptionService, DeepgramTranscriptionService>();
         services.AddSingleton<ISummaryService, ClaudeSummaryService>();
@@ -69,9 +68,13 @@ public partial class App : Application
         services.AddTransient<DeviceSelectorViewModel>();
         services.AddTransient<TranscriptViewModel>();
         services.AddTransient<SummaryViewModel>();
+        services.AddTransient<SettingsViewModel>();
+        services.AddTransient<SessionHistoryViewModel>();
 
         // Views
         services.AddTransient<MainWindow>();
+        services.AddTransient<SettingsWindow>();
+        services.AddTransient<SessionHistoryWindow>();
     }
 
     protected override void OnExit(ExitEventArgs e)
@@ -81,30 +84,7 @@ public partial class App : Application
     }
 }
 
-// Settings classes
-public class DeepgramSettings
-{
-    public string ApiKey { get; set; } = string.Empty;
-    public string Language { get; set; } = "nl";
-    public string Model { get; set; } = "nova-2";
-}
-
-public class ClaudeSettings
-{
-    public string ApiKey { get; set; } = string.Empty;
-    public string Model { get; set; } = "claude-sonnet-4-20250514";
-}
-
-public class StorageSettings
-{
-    public string BasePath { get; set; } = "%APPDATA%/MeetingTranscriber";
-
-    public string GetExpandedPath()
-    {
-        return Environment.ExpandEnvironmentVariables(BasePath);
-    }
-}
-
+// Settings classes for appsettings.json (fallback only)
 public class AudioSettings
 {
     public int SampleRate { get; set; } = 16000;

@@ -23,13 +23,41 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Device Selection Row -->
+        <!-- Title Bar with Settings -->
         <Grid Grid.Row="0" Margin="0,0,0,16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Text="Meeting Transcriber"
+                       Style="{StaticResource MaterialDesignHeadline5TextBlock}"
+                       VerticalAlignment="Center"/>
+
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <Button Command="{Binding OpenHistoryCommand}"
+                        Style="{StaticResource MaterialDesignIconButton}"
+                        ToolTip="Sessie Geschiedenis"
+                        Margin="0,0,8,0">
+                    <materialDesign:PackIcon Kind="History"/>
+                </Button>
+
+                <Button Command="{Binding OpenSettingsCommand}"
+                        Style="{StaticResource MaterialDesignIconButton}"
+                        ToolTip="Instellingen">
+                    <materialDesign:PackIcon Kind="Cog"/>
+                </Button>
+            </StackPanel>
+        </Grid>
+
+        <!-- Device Selection Row -->
+        <Grid Grid.Row="1" Margin="0,0,0,16">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="16"/>
@@ -76,7 +104,7 @@
         </Grid>
 
         <!-- Recording Controls -->
-        <Grid Grid.Row="1" Margin="0,0,0,16">
+        <Grid Grid.Row="2" Margin="0,0,0,16">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                 <Button Command="{Binding StartCommand}"
                         Style="{StaticResource MaterialDesignRaisedButton}"
@@ -128,7 +156,7 @@
         </Grid>
 
         <!-- Transcript Area -->
-        <materialDesign:Card Grid.Row="2" Padding="16">
+        <materialDesign:Card Grid.Row="3" Padding="16">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -167,24 +195,38 @@
         </materialDesign:Card>
 
         <!-- Summary Area (collapsible) -->
-        <Expander Grid.Row="3"
+        <Expander Grid.Row="4"
                   Header="Samenvatting"
                   Margin="0,16,0,0"
                   IsExpanded="{Binding Summary.SummaryText, Converter={StaticResource StringNotEmptyToBoolConverter}}">
             <materialDesign:Card Padding="16" Margin="0,8,0,0">
-                <TextBox Text="{Binding Summary.SummaryText}"
-                         TextWrapping="Wrap"
-                         AcceptsReturn="True"
-                         VerticalScrollBarVisibility="Auto"
-                         MinHeight="100"
-                         MaxHeight="200"
-                         IsReadOnly="True"
-                         Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
+                <Grid>
+                    <TextBox Text="{Binding Summary.SummaryText}"
+                             TextWrapping="Wrap"
+                             AcceptsReturn="True"
+                             VerticalScrollBarVisibility="Auto"
+                             MinHeight="100"
+                             MaxHeight="200"
+                             IsReadOnly="True"
+                             Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                             Visibility="{Binding Summary.IsGenerating, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+
+                    <StackPanel HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Visibility="{Binding Summary.IsGenerating, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <ProgressBar Style="{StaticResource MaterialDesignCircularProgressBar}"
+                                     IsIndeterminate="True"
+                                     Width="32" Height="32"/>
+                        <TextBlock Text="Samenvatting genereren..."
+                                   Margin="0,8,0,0"
+                                   HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
             </materialDesign:Card>
         </Expander>
 
         <!-- Bottom Action Bar -->
-        <Grid Grid.Row="4" Margin="0,16,0,0">
+        <Grid Grid.Row="5" Margin="0,16,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
