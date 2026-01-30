@@ -1,4 +1,5 @@
 using FluentAssertions;
+using MeetingTranscriber.Services.Settings;
 using Xunit;
 
 namespace MeetingTranscriber.Tests;
@@ -6,81 +7,48 @@ namespace MeetingTranscriber.Tests;
 public class SettingsTests
 {
     [Fact]
-    public void DeepgramSettings_ShouldHaveDefaultValues()
+    public void AppSettings_ShouldHaveDefaultDeepgramValues()
     {
         // Arrange & Act
-        var settings = new DeepgramSettings();
+        var settings = new AppSettings();
 
         // Assert
-        settings.ApiKey.Should().BeEmpty();
-        settings.Language.Should().Be("nl");
-        settings.Model.Should().Be("nova-2");
+        settings.DeepgramApiKey.Should().BeEmpty();
+        settings.DeepgramLanguage.Should().Be("nl");
+        settings.DeepgramModel.Should().Be("nova-2");
     }
 
     [Fact]
-    public void ClaudeSettings_ShouldHaveDefaultValues()
+    public void AppSettings_ShouldHaveDefaultClaudeValues()
     {
         // Arrange & Act
-        var settings = new ClaudeSettings();
+        var settings = new AppSettings();
 
         // Assert
-        settings.ApiKey.Should().BeEmpty();
-        settings.Model.Should().Be("claude-sonnet-4-20250514");
+        settings.ClaudeApiKey.Should().BeEmpty();
+        settings.ClaudeModel.Should().Be("claude-sonnet-4-20250514");
     }
 
     [Fact]
-    public void StorageSettings_ShouldHaveDefaultValues()
+    public void AppSettings_ShouldHaveDefaultStorageValues()
     {
         // Arrange & Act
-        var settings = new StorageSettings();
+        var settings = new AppSettings();
 
         // Assert
-        settings.BasePath.Should().Be("%APPDATA%/MeetingTranscriber");
+        settings.StoragePath.Should().BeEmpty();
     }
 
     [Fact]
-    public void StorageSettings_GetExpandedPath_ShouldExpandEnvironmentVariables()
-    {
-        // Arrange
-        var settings = new StorageSettings
-        {
-            BasePath = "%TEMP%/TestPath"
-        };
-
-        // Act
-        var expandedPath = settings.GetExpandedPath();
-
-        // Assert
-        expandedPath.Should().NotContain("%TEMP%");
-        expandedPath.Should().EndWith("TestPath");
-    }
-
-    [Fact]
-    public void StorageSettings_GetExpandedPath_WithNoVariables_ShouldReturnSamePath()
-    {
-        // Arrange
-        var settings = new StorageSettings
-        {
-            BasePath = "/absolute/path/to/storage"
-        };
-
-        // Act
-        var expandedPath = settings.GetExpandedPath();
-
-        // Assert
-        expandedPath.Should().Be("/absolute/path/to/storage");
-    }
-
-    [Fact]
-    public void AudioSettings_ShouldHaveDefaultValues()
+    public void AppSettings_ShouldHaveDefaultAudioValues()
     {
         // Arrange & Act
-        var settings = new AudioSettings();
+        var settings = new AppSettings();
 
         // Assert
-        settings.SampleRate.Should().Be(16000);
-        settings.Channels.Should().Be(1);
-        settings.BitsPerSample.Should().Be(16);
+        settings.AudioSampleRate.Should().Be(16000);
+        settings.AudioChannels.Should().Be(1);
+        settings.AudioBitsPerSample.Should().Be(16);
     }
 
     [Theory]
@@ -88,12 +56,23 @@ public class SettingsTests
     [InlineData(16000)]
     [InlineData(44100)]
     [InlineData(48000)]
-    public void AudioSettings_ShouldAllowDifferentSampleRates(int sampleRate)
+    public void AppSettings_ShouldAllowDifferentSampleRates(int sampleRate)
     {
         // Arrange & Act
-        var settings = new AudioSettings { SampleRate = sampleRate };
+        var settings = new AppSettings { AudioSampleRate = sampleRate };
 
         // Assert
-        settings.SampleRate.Should().Be(sampleRate);
+        settings.AudioSampleRate.Should().Be(sampleRate);
+    }
+
+    [Fact]
+    public void AppSettings_ShouldHaveDefaultUIValues()
+    {
+        // Arrange & Act
+        var settings = new AppSettings();
+
+        // Assert
+        settings.AutoScroll.Should().BeTrue();
+        settings.DarkTheme.Should().BeTrue();
     }
 }

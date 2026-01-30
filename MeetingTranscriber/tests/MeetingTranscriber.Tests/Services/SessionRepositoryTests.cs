@@ -1,8 +1,9 @@
+using System.IO;
 using FluentAssertions;
 using MeetingTranscriber.Models;
+using MeetingTranscriber.Services.Settings;
 using MeetingTranscriber.Services.Storage;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
 
@@ -10,7 +11,7 @@ namespace MeetingTranscriber.Tests.Services;
 
 public class SessionRepositoryTests : IDisposable
 {
-    private readonly Mock<IOptions<StorageSettings>> _settingsMock;
+    private readonly Mock<ISettingsService> _settingsServiceMock;
     private readonly Mock<ILogger<SessionRepository>> _loggerMock;
     private readonly SessionRepository _repository;
     private readonly string _testBasePath;
@@ -19,15 +20,15 @@ public class SessionRepositoryTests : IDisposable
     {
         _testBasePath = Path.Combine(Path.GetTempPath(), $"MeetingTranscriberTests_{Guid.NewGuid()}");
 
-        _settingsMock = new Mock<IOptions<StorageSettings>>();
-        _settingsMock.Setup(x => x.Value).Returns(new StorageSettings
+        _settingsServiceMock = new Mock<ISettingsService>();
+        _settingsServiceMock.Setup(x => x.GetSettingsAsync()).ReturnsAsync(new AppSettings
         {
-            BasePath = _testBasePath
+            StoragePath = _testBasePath
         });
 
         _loggerMock = new Mock<ILogger<SessionRepository>>();
 
-        _repository = new SessionRepository(_settingsMock.Object, _loggerMock.Object);
+        _repository = new SessionRepository(_settingsServiceMock.Object, _loggerMock.Object);
     }
 
     public void Dispose()
@@ -36,7 +37,11 @@ public class SessionRepositoryTests : IDisposable
 
         if (Directory.Exists(_testBasePath))
         {
-            Directory.Delete(_testBasePath, recursive: true);
+            try
+            {
+                Directory.Delete(_testBasePath, recursive: true);
+            }
+            catch { /* ignore cleanup errors */ }
         }
     }
 
